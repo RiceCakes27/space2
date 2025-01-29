@@ -57,7 +57,7 @@ function moveStars() {
         }
 
         // Move the star along the direction vector
-        star.x -= dx * delta; // Adjust the speed by multiplying by a factor
+        star.x -= dx * delta; // Adjust the speed by multiplying by scroll speed factor
         star.y -= dy * delta;
 
         // If the star is close to the center, reset its position
@@ -65,7 +65,10 @@ function moveStars() {
             star.x = randNum(10, canvas.width + 10);
             star.y = randNum(10, canvas.height + 10);
         }
-        // Bounce off edges
+        // Math.abs(delta)*4 adaptive hole size
+        //console.log(Math.abs(delta));
+
+        // respawn if goes off edge
         if (star.x <= 10 || star.x >= canvas.width - 10) star.x = randNum(10, canvas.width + 10);;
         if (star.y <= 10 || star.y >= canvas.height - 10) star.y = randNum(10, canvas.height + 10);;
     }
@@ -77,7 +80,7 @@ function moveStars() {
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-// Create 10 stars
+// Create as many stars as numOfStars
 for (let i = 0; i < numOfStars; i++) {
     createStar(i);
 }
@@ -89,39 +92,37 @@ drawStars(); // Initial drawing
 canvas.addEventListener("scroll", (event) => {
     moveStars();
   });
+
+canvas.addEventListener('scroll', (e) => {
+    console.log('scrolling');
+});
+
+let MOUSE_OVER = false;
+canvas.addEventListener('wheel', (e) => {
+    if (MOUSE_OVER) {
+        if (e.preventDefault) {
+            e.preventDefault();
+        }
+        e.returnValue = false;
+        return false;
+    }
+});
+
+canvas.addEventListener('mouseenter', () => {
+    MOUSE_OVER = true;
+});
+canvas.addEventListener('mouseleave', () => {
+    MOUSE_OVER = false;
+});
 */
-
-    canvas.addEventListener('scroll', (e) => {
-        console.log('scrolling');
-    });
-
-    let MOUSE_OVER = false;
-    canvas.addEventListener('wheel', (e) => {
-        if (MOUSE_OVER) {
-            if (e.preventDefault) {
-                e.preventDefault();
-            }
-            e.returnValue = false;
-            return false;
-        }
-    });
-
-    canvas.addEventListener('mouseenter', () => {
-        MOUSE_OVER = true;
-    });
-    canvas.addEventListener('mouseleave', () => {
-        MOUSE_OVER = false;
-    });
-
-    canvas.addEventListener('wheel', (e) => {
-        delta = e.wheelDelta;
+canvas.addEventListener('wheel', (e) => {
+    delta = e.wheelDelta;
+    //console.log(delta);
+    if (delta < -10) {
+        delta = -10
         
-        console.log(delta);
-        if (delta < -10) {
-            delta = -10
-            
-        } else if (delta > 10) {
-            delta = 10
-        }
-        moveStars();
-    });
+    } else if (delta > 10) {
+        delta = 10
+    }
+    moveStars();
+});
