@@ -1,6 +1,9 @@
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
-const numOfStars = 100;
+const numOfStars = 200;
+let delta = null;
+
+
 function randNum(min, max) {
     return Math.random() * (max - min) + min;
 }
@@ -54,14 +57,17 @@ function moveStars() {
         }
 
         // Move the star along the direction vector
-        star.x += dx * 2; // Adjust the speed by multiplying by a factor
-        star.y += dy * 2;
+        star.x -= dx * delta; // Adjust the speed by multiplying by a factor
+        star.y -= dy * delta;
 
         // If the star is close to the center, reset its position
-        if (distance < 5) {
+        if (distance < 10) {
             star.x = randNum(10, canvas.width + 10);
             star.y = randNum(10, canvas.height + 10);
         }
+        // Bounce off edges
+        if (star.x <= 10 || star.x >= canvas.width - 10) star.x = randNum(10, canvas.width + 10);;
+        if (star.y <= 10 || star.y >= canvas.height - 10) star.y = randNum(10, canvas.height + 10);;
     }
 
     drawStars(); // Redraw after moving
@@ -108,10 +114,14 @@ canvas.addEventListener("scroll", (event) => {
     });
 
     canvas.addEventListener('wheel', (e) => {
-        let delta = e.wheelDelta;
-        if (delta > 0) {
+        delta = e.wheelDelta;
+        
+        console.log(delta);
+        if (delta < -10) {
+            delta = -10
             
-        } else {
-            moveStars();
+        } else if (delta > 10) {
+            delta = 10
         }
+        moveStars();
     });
