@@ -35,49 +35,37 @@ function drawStars() {
 }
 
 function moveStars() {
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+
     for (let i = 0; i < numOfStars; i++) {
         let star = window["star"+i];
         if (!star) continue;
 
-        if (star.x > canvas.width/2 && star.y > canvas.height/2) {
-            star.x -=2
-            star.y -=2
-        }
-        if (star.x < canvas.width/2 && star.y < canvas.height/2) {
-            star.x +=2
-            star.y +=2
-        }
-        if (star.x < canvas.width/2 && star.y > canvas.height/2) {
-            star.x +=2
-            star.y -=2
-        }
-        if (star.x > canvas.width/2 && star.y < canvas.height/2) {
-            star.x -=2
-            star.y +=2
-        }
-        var diff = Math.abs(canvas.width/2 - star.x);
-        var diff2 = Math.abs(canvas.height/2 - star.y)
-        if( diff < 10 && diff2 < 10) {
-            star.x = randNum(10, canvas.width - 10);
-            star.y = randNum(10, canvas.height - 10);
-        }
-        /*
-        if (star.x == canvas.width/2 || star.y == canvas.height/2) {
-            star.x = randNum(10, canvas.width - 10);
-            star.y = randNum(10, canvas.height - 10);
-        }
-        */
-        // Update position
-        //star.x += star.dx;
-        //star.y += star.dy;
+        // Calculate the direction vector from the star to the center
+        let dx = centerX - star.x;
+        let dy = centerY - star.y;
 
-        // Bounce off edges
-        //if (star.x <= 10 || star.x >= canvas.width - 10) star.dx *= -1;
-        //if (star.y <= 10 || star.y >= canvas.height - 10) star.dy *= -1;
+        // Normalize the direction vector (make it a unit vector)
+        let distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance > 0) {
+            dx /= distance;
+            dy /= distance;
+        }
+
+        // Move the star along the direction vector
+        star.x += dx * 2; // Adjust the speed by multiplying by a factor
+        star.y += dy * 2;
+
+        // If the star is close to the center, reset its position
+        if (distance < 5) {
+            star.x = randNum(10, canvas.width + 10);
+            star.y = randNum(10, canvas.height + 10);
+        }
     }
 
     drawStars(); // Redraw after moving
-    requestAnimationFrame(moveStars); // Keep moving
+    //requestAnimationFrame(moveStars); // Keep moving
 }
 
 canvas.width = window.innerWidth;
@@ -89,4 +77,41 @@ for (let i = 0; i < numOfStars; i++) {
 }
 
 drawStars(); // Initial drawing
-moveStars(); // Start animation loop
+//moveStars(); // Start animation loop
+
+/*
+canvas.addEventListener("scroll", (event) => {
+    moveStars();
+  });
+*/
+
+    canvas.addEventListener('scroll', (e) => {
+        console.log('scrolling');
+    });
+
+    let MOUSE_OVER = false;
+    canvas.addEventListener('wheel', (e) => {
+        if (MOUSE_OVER) {
+            if (e.preventDefault) {
+                e.preventDefault();
+            }
+            e.returnValue = false;
+            return false;
+        }
+    });
+
+    canvas.addEventListener('mouseenter', () => {
+        MOUSE_OVER = true;
+    });
+    canvas.addEventListener('mouseleave', () => {
+        MOUSE_OVER = false;
+    });
+
+    canvas.addEventListener('wheel', (e) => {
+        let delta = e.wheelDelta;
+        if (delta > 0) {
+            
+        } else {
+            moveStars();
+        }
+    });
